@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My To-Do List</title>
+</head>
+<body>
+    <h1>My To-Do List</h1>
+
+    {% for task in tasks %}
+        <p>
+            {% if task.is_completed %}✅{% else %}⬜{% endif %}
+            {{ task.title }}
+        </p>
+    {% empty %}
+        <p>No tasks yet.</p>
+    {% endfor %}
+</body>
+</html>
