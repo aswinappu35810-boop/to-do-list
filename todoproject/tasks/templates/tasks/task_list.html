@@ -18,6 +18,12 @@
             <a href="{% url 'task_edit' task.pk %}">Edit</a>
             <a href="{% url 'task_delete' task.pk %}">Delete</a>
         </p>
+        <form method="post" action="{% url 'task_toggle' task.pk %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit">
+                {% if task.is_completed %}Undo{% else %}Done{% endif %}
+            </button>
+        </form>
     {% empty %}
         <p>No tasks yet.</p>
     {% endfor %}

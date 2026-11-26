@@ -41,3 +41,10 @@ def task_delete(request, pk):
         task.delete()
         return redirect('task_list')
     return render(request, 'tasks/task_delete.html', {'task': task})
+
+def task_toggle(request, pk):
+    task = get_object_or_404(Task, pk=pk)
+    if request.method == 'POST':
+        task.is_completed = not task.is_completed
+        task.save()
+    return redirect('task_list')
