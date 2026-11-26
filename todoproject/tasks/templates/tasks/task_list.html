@@ -24,6 +24,13 @@
                 {% if task.is_completed %}Undo{% else %}Done{% endif %}
             </button>
         </form>
+        {% if task.time_limit_minutes and not task.is_completed %}
+            <span class="timer" data-seconds="{{ task.time_limit_minutes }}" data-id="{{ task.pk }}">
+                {{ task.time_limit_minutes }}:00
+            </span>
+            <button type="button" onclick="startTimer(this)">Start timer</button>
+        {% endif %}
+
     {% empty %}
         <p>No tasks yet.</p>
     {% endfor %}
@@ -47,5 +54,25 @@
             }
         });
     </script>
+        <script>
+        function startTimer(button) {
+            const span = button.previousElementSibling;
+            let remaining = parseInt(span.dataset.seconds) * 60;
+            button.disabled = true;
+
+            const interval = setInterval(function () {
+                const minutes = Math.floor(remaining / 60);
+                const seconds = remaining % 60;
+                span.textContent = minutes + ":" + String(seconds).padStart(2, "0");
+
+                if (remaining <= 0) {
+                    clearInterval(interval);
+                    span.textContent = "Time's up!";
+                    alert("Time's up for this task!");
+                }
+                remaining--;
+            }, 1000);
+        }
+    </script> 
 </body>
 </html>
