@@ -27,5 +27,25 @@
     {% empty %}
         <p>No tasks yet.</p>
     {% endfor %}
+    <h2>Progress</h2>
+    <p>Done: {{ done_count }} | Not done: {{ pending_count }}</p>
+    <div style="width: 300px;">
+        <canvas id="progressChart"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('progressChart');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Done', 'Not done'],
+                datasets: [{
+                    data: [{{ done_count }}, {{ pending_count }}],
+                    backgroundColor: ['#22c55e', '#d1d5db'],
+                }]
+            }
+        });
+    </script>
 </body>
 </html>
