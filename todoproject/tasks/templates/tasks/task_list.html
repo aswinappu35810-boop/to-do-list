@@ -2,9 +2,12 @@
 <html>
 <head>
     <title>My To-Do List</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h1>My To-Do List</h1>
+<body class="bg-gray-100 min-h-screen">
+    <div class="max-w-xl mx-auto mt-10 bg-white shadow-md rounded-lg p-6">
+        <h1 class="text-3xl font-bold text-gray-800 mb-4">My To-Do List</h1>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
@@ -12,15 +15,15 @@
     </form>
 
     {% for task in tasks %}
-        <p>
+        <p class="flex flex-wrap items-center gap-2 py-2 border-b">
             {% if task.is_completed %}✅{% else %}⬜{% endif %}
             {{ task.title }}
-            <a href="{% url 'task_edit' task.pk %}">Edit</a>
-            <a href="{% url 'task_delete' task.pk %}">Delete</a>
+            <a href="{% url 'task_edit' task.pk %}" class="text-blue-600 hover:underline">Edit</a>
+            <a href="{% url 'task_delete' task.pk %}" class="text-red-600 hover:underline">Delete</a>
         </p>
         <form method="post" action="{% url 'task_toggle' task.pk %}" style="display:inline;">
             {% csrf_token %}
-            <button type="submit">
+            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">
                 {% if task.is_completed %}Undo{% else %}Done{% endif %}
             </button>
         </form>
@@ -28,7 +31,7 @@
             <span class="timer" data-seconds="{{ task.time_limit_minutes }}" data-id="{{ task.pk }}">
                 {{ task.time_limit_minutes }}:00
             </span>
-            <button type="button" onclick="startTimer(this)">Start timer</button>
+            <button type="button" onclick="startTimer(this)" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">Start timer</button>
         {% endif %}
 
     {% empty %}
@@ -39,7 +42,7 @@
     <div style="width: 300px;">
         <canvas id="progressChart"></canvas>
     </div>
-
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const ctx = document.getElementById('progressChart');
