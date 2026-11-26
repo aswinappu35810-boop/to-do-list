@@ -1,48 +1,116 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>My To-Do List</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen">
-    <div class="max-w-xl mx-auto mt-10 bg-white shadow-md rounded-lg p-6">
-        <h1 class="text-3xl font-bold text-gray-800 mb-4">My To-Do List</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Add task</button>
-    </form>
+<body class="min-h-screen bg-slate-100 text-slate-800">
+    <main class="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
+        <section class="rounded-3xl bg-white p-5 shadow-xl shadow-slate-200/70 sm:p-8">
+            <header class="mb-6">
+                <p class="text-sm font-semibold uppercase tracking-widest text-violet-500">Today</p>
+                <h1 class="mt-1 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">My little to-do list</h1>
+                <p class="mt-2 text-slate-500">Add a task, do the thing, feel good about it.</p>
+            </header>
 
-    {% for task in tasks %}
-        <p class="flex flex-wrap items-center gap-2 py-2 border-b">
-            {% if task.is_completed %}✅{% else %}⬜{% endif %}
-            {{ task.title }}
-            <a href="{% url 'task_edit' task.pk %}" class="text-blue-600 hover:underline">Edit</a>
-            <a href="{% url 'task_delete' task.pk %}" class="text-red-600 hover:underline">Delete</a>
-        </p>
-        <form method="post" action="{% url 'task_toggle' task.pk %}" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">
-                {% if task.is_completed %}Undo{% else %}Done{% endif %}
-            </button>
-        </form>
-        {% if task.time_limit_minutes and not task.is_completed %}
-            <span class="timer" data-seconds="{{ task.time_limit_minutes }}" data-id="{{ task.pk }}">
-                {{ task.time_limit_minutes }}:00
-            </span>
-            <button type="button" onclick="startTimer(this)" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">Start timer</button>
-        {% endif %}
+            <form method="post" class="mb-8 rounded-2xl bg-violet-50 p-4 sm:p-5">
+                {% csrf_token %}
+                <div class="grid gap-3 sm:grid-cols-2">
+                    <label class="block text-sm font-bold text-slate-700 sm:col-span-2">
+                        Task
+                        {{ form.title }}
+                    </label>
+                    <label class="block text-sm font-bold text-slate-700">
+                        Description
+                        {{ form.description }}
+                    </label>
+                    <label class="block text-sm font-bold text-slate-700">
+                        Timer (minutes)
+                        {{ form.time_limit_minutes }}
+                    </label>
+                </div>
+                <button type="submit" class="mt-4 w-full rounded-xl bg-violet-600 px-4 py-3 font-bold text-white shadow-md shadow-violet-200 transition hover:bg-violet-700 sm:w-auto">
+                    + Add task
+                </button>
+            </form>
 
-    {% empty %}
-        <p>No tasks yet.</p>
-    {% endfor %}
-    <h2>Progress</h2>
-    <p>Done: {{ done_count }} | Not done: {{ pending_count }}</p>
-    <div style="width: 300px;">
-        <canvas id="progressChart"></canvas>
-    </div>
-    </div>
+            <div class="space-y-3">
+                {% for task in tasks %}
+                    <article class="rounded-2xl border border-slate-200 p-4 transition hover:border-violet-200 hover:bg-violet-50/40">
+                        <div class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+                            <div class="min-w-0">
+                                <div class="flex items-start gap-3">
+                                    <span class="mt-0.5 text-xl" aria-hidden="true">{% if task.is_completed %}✅{% else %}⬜{% endif %}</span>
+                                    <div class="min-w-0">
+                                        <h2 class="{% if task.is_completed %}text-slate-400 line-through{% else %}text-slate-900{% endif %} break-words text-base font-bold">
+                                            {{ task.title }}
+                                        </h2>
+                                        {% if task.description %}
+                                            <p class="mt-1 break-words text-sm text-slate-500">{{ task.description }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap items-center gap-2 sm:justify-end">
+                                <form method="post" action="{% url 'task_toggle' task.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="rounded-lg {% if task.is_completed %}bg-slate-200 text-slate-700 hover:bg-slate-300{% else %}bg-emerald-500 text-white hover:bg-emerald-600{% endif %} px-3 py-2 text-sm font-bold">
+                                        {% if task.is_completed %}Undo{% else %}Done{% endif %}
+                                    </button>
+                                </form>
+                                <a href="{% url 'task_edit' task.pk %}" class="rounded-lg bg-sky-100 px-3 py-2 text-sm font-bold text-sky-700 hover:bg-sky-200">Edit</a>
+                                <a href="{% url 'task_delete' task.pk %}" class="rounded-lg bg-rose-100 px-3 py-2 text-sm font-bold text-rose-700 hover:bg-rose-200">Delete</a>
+                            </div>
+                        </div>
+
+                        {% if task.time_limit_minutes and not task.is_completed %}
+                            <div class="mt-3 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-3 sm:ml-8">
+                                <span class="timer rounded-md bg-slate-100 px-2 py-1 font-mono text-sm font-bold text-slate-600" data-seconds="{{ task.time_limit_minutes }}" data-id="{{ task.pk }}">
+                                    {{ task.time_limit_minutes }}:00
+                                </span>
+                                <button type="button" onclick="startTimer(this)" class="rounded-lg bg-violet-100 px-3 py-2 text-sm font-bold text-violet-700 hover:bg-violet-200">Start timer</button>
+                            </div>
+                        {% endif %}
+                    </article>
+                {% empty %}
+                    <div class="rounded-2xl border-2 border-dashed border-slate-200 py-10 text-center">
+                        <p class="text-lg font-bold text-slate-700">Nothing here yet!</p>
+                        <p class="mt-1 text-sm text-slate-500">Your next small win starts above.</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <section class="mt-8 grid gap-5 rounded-2xl bg-slate-900 p-5 text-white sm:grid-cols-[1fr_180px] sm:items-center">
+                <div>
+                    <p class="text-sm font-semibold uppercase tracking-widest text-violet-300">Progress</p>
+                    <h2 class="mt-1 text-2xl font-black">Keep it moving!</h2>
+                    <p class="mt-2 text-sm text-slate-300">
+                        <span class="font-bold text-emerald-300">{{ done_count }} done</span>
+                        <span class="mx-2 text-slate-600">•</span>
+                        <span>{{ pending_count }} to go</span>
+                    </p>
+                </div>
+                <div class="mx-auto h-36 w-36">
+                    <canvas id="progressChart"></canvas>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <style>
+        form input, form textarea, form select {
+            width: 100%;
+            margin-top: 0.35rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.75rem;
+            background: white;
+            padding: 0.65rem 0.75rem;
+            color: #0f172a;
+        }
+        form textarea { min-height: 5rem; resize: vertical; }
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const ctx = document.getElementById('progressChart');
